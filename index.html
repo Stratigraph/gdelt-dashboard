@@ -1,0 +1,155 @@
+<!DOCTYPE html>
+
+<meta charset='utf-8'>
+
+<link rel='stylesheet' type='text/css' href='http://fonts.googleapis.com/css?family=Droid+Sans'>
+
+<style>
+
+body {
+    font-family: 'Droid Sans', sans-serif;
+    font-size: 10px;
+}
+
+#matrix {
+    position: relative;
+}
+
+.col {
+    position: absolute;
+}
+
+.col .header {
+    background-color: lightgrey;
+    margin-bottom: 15px;
+    padding: 5px;
+    text-align: center;
+    color: grey;
+}
+
+.cell {
+    margin-bottom: 15px;
+}
+
+.cell .title {
+    color: lightgrey;
+}
+
+.sparkline path {
+    fill: none;
+    stroke: red;
+    stroke-width: 0.5px;
+    shape-rendering: crispEdges;
+}
+
+</style>
+
+<body>
+
+<div id='matrix'></div>
+
+<script charset='utf-8' src='http://d3js.org/d3.v3.min.js'></script>
+
+<script charset='utf-8' src='js/d3.charts.sparkline.js'></script>
+
+<script>
+
+var dispatch = d3.dispatch('load'),
+    format = d3.time.format('%Y%m%d'),
+    minDate = format.parse('20140701'),
+    maxDate = format.parse('20140801');
+
+d3.csv('data/countries.csv', function (error, countries) {
+
+    var countriesByCodes = d3.nest()
+        .key(function (d) { return d.fips_10; })
+        .rollup(function (d) { return d[0]; })
+        .map(countries, d3.map);
+
+    d3.csv('data/counts.csv', function (error, counts) {
+
+        counts.forEach(function (d) {
+            d.date = format.parse(d.date);
+            d.count = parseInt(d.count, 10);
+        });
+
+        // Impute missing data
+        var countsByCodesByDates = d3.nest()
+            .key(function (d) { return d.fips_10; })
+            .key(function (d) { return d.date; })
+            .rollup(function (d) { return d[0]; })
+            .map(counts, d3.map);
+
+        var dates = d3.time.day.range(minDate, maxDate);
+
+        countsByCodesByDates.forEach(function (key, value) {
+            dates.forEach(function (date) {
+                if (!value.has(date)) {
+                    value.set(date, { 'fips_10' : key, 'date' : date, 'count' : 0 });
+                }
+            });
+        });
+
+        counts = d3.merge(countsByCodesByDates.values().map(function (d) { return d.values(); }));
+
+        // Nest for visualisation
+        var countsByRegionsByNames = d3.nest()
+            .key(function (d) {
+                var country = countriesByCodes.get(d.fips_10);
+                if (country) {
+                    return country.region_un;
+                }
+                return "Other";
+            })
+            .sortKeys(d3.ascending)
+            .key(function (d) {
+                var country = countriesByCodes.get(d.fips_10)
+                if (country) {
+                    return country.name;
+                }
+                return d.fips_10;
+            })
+            .sortKeys(d3.ascending)
+            .sortValues(function (a, b) { return d3.ascending(a.date, b.date); })
+            .entries(counts);
+
+        dispatch.load(countsByRegionsByNames);
+    });
+});
+
+dispatch.on('load.sparkline', function (data) {
+
+    var sparkline = d3.charts.sparkline()
+        .x(function (d) { return d.date; })
+        .y(function (d) { return d.count; });
+
+    var matrix = d3.select('#matrix')
+
+    var cols = matrix.selectAll('.col')
+            .data(data)
+            .enter().append('div')
+            .attr('class', 'col')
+            .style('left', function (d, i) { return (i * (sparkline.width() + 10)) + 'px'; });
+
+    cols.append('div')
+            .attr('class', 'header')
+            .text(function (d) { return d.key; });
+
+    var cells = cols.selectAll('.cell')
+            .data(function (d) { return d.values; })
+            .enter().append('div')
+            .attr('class', 'cell');
+
+    cells.append('div')
+            .datum(function (d) { return d.values; })
+            .call(sparkline);
+
+    cells.append('div')
+            .attr('class', 'title')
+            .text(function (d) { return d.key; });
+
+});
+
+</script>
+
+</body>
