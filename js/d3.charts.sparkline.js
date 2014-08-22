@@ -104,7 +104,7 @@ d3.charts.sparkline = function () {
         if (!arguments.length) {
             return xDomain; // TODO: xDomain.call()?
         }
-        xDomain = d3.functor(d);
+        xDomain = d == null ? d : d3.functor(d);
         return sparkline;
     };
 
@@ -112,7 +112,7 @@ d3.charts.sparkline = function () {
         if (!arguments.length) {
             return yDomain; // TODO: yDomain.call()?
         }
-        yDomain = d3.functor(d);
+        yDomain = d == null ? d : d3.functor(d);
         return sparkline;
     };
 
