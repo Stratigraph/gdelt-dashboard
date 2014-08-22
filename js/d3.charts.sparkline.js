@@ -17,28 +17,22 @@ d3.charts.sparkline = function () {
 
     function sparkline(selection) {
 
-        selection.each(function (d) {
-
-            var data = d.map(function (d, i) {
-
-                return {'x': xAccessor(d, i), 'y': yAccessor(d, i)};
-
-            });
+        selection.each(function (data, index) {
 
             // Scales
 
             var x = d3.time.scale.utc()
-                .domain(xDomain ? xDomain : d3.extent(data, function (d) { return d.x; }))
+                .domain(xDomain ? xDomain : d3.extent(data, function (d, i) { return xAccessor(d, i); }))
                 .range([0, width - margin.left - margin.right]);
 
             var y = d3.scale.linear()
-                .domain(yDomain ? yDomain : d3.extent(data, function (d) { return d.y; }))
+                .domain(yDomain ? yDomain : d3.extent(data, function (d, i) { return yAccessor(d, i); }))
                 .range([height - margin.top - margin.bottom, 0]);
 
             var line = d3.svg.line()
                 .interpolate(interpolate)
-                .x(function (d) { return x(d.x); })
-                .y(function (d) { return y(d.y); });
+                .x(function (d, i) { return x(xAccessor(d, i)); })
+                .y(function (d, i) { return y(yAccessor(d, i)); });
 
             // Initial selection
 
