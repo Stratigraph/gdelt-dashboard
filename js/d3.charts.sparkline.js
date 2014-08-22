@@ -40,21 +40,24 @@ d3.charts.sparkline = function () {
 
             // Scaffolding
 
-            var g = svg.enter().append('svg')
+            svg.enter().append('svg')
                     .attr('class', 'sparkline')
                     .attr('width', width)
                     .attr('height', height)
                 .append('g')
-                    .attr('transform', 'translate(' + margin.left + ',' + margin.top + ')');
-
-            g.append('g').attr('class', 'chart-area');
+                    .attr('transform', 'translate(' + margin.left + ',' + margin.top + ')')
+                .append('g')
+                    .attr('class', 'chart-area');
 
             // Chart area
 
-            g = svg.select('g');
+            var path = svg.select('.chart-area').selectAll('path')
+                    .data(function (d) { return [d]; });
 
-            g.select('.chart-area').append('path')
-                    .datum(function (d) { return d; })
+            path.enter().append('path')
+                    .attr('d', line);
+
+            path.transition()
                     .attr('d', line);
 
         });
