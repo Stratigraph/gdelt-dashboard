@@ -74,6 +74,10 @@ var dispatch = d3.dispatch('load', 'change'),
     minDate = format.parse('20140701'),
     maxDate = format.parse('20140801');
 
+var sparkline = d3.charts.sparkline()
+    .x(function (d) { return d.date; })
+    .y(function (d) { return d.count; });
+
 d3.csv('data/countries.csv', function (error, countries) {
 
     var countriesByCodes = d3.nest()
@@ -135,15 +139,11 @@ d3.csv('data/countries.csv', function (error, countries) {
 dispatch.on('load.domain-controller', function () {
 
     var select = d3.select('#domain-controller')
-            .on('change', function () { dispatch.change(); });
+            .on('change', function () { dispatch.change(this.value); });
 
 });
 
 dispatch.on('load.sparkline', function (data) {
-
-    var sparkline = d3.charts.sparkline()
-        .x(function (d) { return d.date; })
-        .y(function (d) { return d.count; });
 
     var matrix = d3.select('#matrix')
 
@@ -178,9 +178,17 @@ dispatch.on('change.domain-controller', function () {
 
 });
 
-dispatch.on('change.sparkline', function () {
+dispatch.on('change.sparkline', function (value) {
 
-    console.log('change.sparkline');
+    var yDomain = null; // value === 'local-min-max'
+
+    if (value === 'local-zero-max') {
+        yDomain = function (d) { return [0, d3.max(d, sparkline.y())]; };
+    }
+
+    d3.selectAll('.cell').select('div')
+            .datum(function (d) { return d.values; })
+            .call(sparkline.yDomain(yDomain));
 
 });
 
