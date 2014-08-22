@@ -11,6 +11,12 @@ body {
     font-size: 10px;
 }
 
+#controls {
+    margin: 5px 0;
+    padding: 5px;
+    border: 1px solid lightgrey;
+}
+
 #matrix {
     position: relative;
 }
@@ -46,6 +52,13 @@ body {
 
 <body>
 
+<div id='controls'>
+    <select id='domain-controller'>
+        <option value='local-min-max'>min-max [local]</option>
+        <option value='local-zero-max'>zero-max [local]</option>
+    </select>
+</div>
+
 <div id='matrix'></div>
 
 <script charset='utf-8' src='http://d3js.org/d3.v3.min.js'></script>
@@ -54,7 +67,7 @@ body {
 
 <script>
 
-var dispatch = d3.dispatch('load'),
+var dispatch = d3.dispatch('load', 'change'),
     format = d3.time.format('%Y%m%d'),
     minDate = format.parse('20140701'),
     maxDate = format.parse('20140801');
@@ -117,6 +130,13 @@ d3.csv('data/countries.csv', function (error, countries) {
     });
 });
 
+dispatch.on('load.domain-controller', function () {
+
+    var select = d3.select('#domain-controller')
+            .on('change', function () { dispatch.change(); });
+
+});
+
 dispatch.on('load.sparkline', function (data) {
 
     var sparkline = d3.charts.sparkline()
@@ -147,6 +167,18 @@ dispatch.on('load.sparkline', function (data) {
     cells.append('div')
             .attr('class', 'title')
             .text(function (d) { return d.key; });
+
+});
+
+dispatch.on('change.domain-controller', function () {
+
+    console.log('change.domain-controller');
+
+});
+
+dispatch.on('change.sparkline', function () {
+
+    console.log('change.sparkline');
 
 });
 
