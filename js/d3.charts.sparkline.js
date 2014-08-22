@@ -22,11 +22,11 @@ d3.charts.sparkline = function () {
             // Scales
 
             var x = d3.time.scale.utc()
-                .domain(xDomain ? xDomain : d3.extent(data, function (d, i) { return xAccessor(d, i); }))
+                .domain(xDomain ? xDomain.call(this, data, index) : d3.extent(data, function (d, i) { return xAccessor(d, i); }))
                 .range([0, width - margin.left - margin.right]);
 
             var y = d3.scale.linear()
-                .domain(yDomain ? yDomain : d3.extent(data, function (d, i) { return yAccessor(d, i); }))
+                .domain(yDomain ? yDomain.call(this, data, index) : d3.extent(data, function (d, i) { return yAccessor(d, i); }))
                 .range([height - margin.top - margin.bottom, 0]);
 
             var line = d3.svg.line()
@@ -102,17 +102,17 @@ d3.charts.sparkline = function () {
 
     sparkline.xDomain = function (d) {
         if (!arguments.length) {
-            return xDomain;
+            return xDomain; // TODO: xDomain.call()?
         }
-        xDomain = d;
+        xDomain = d3.functor(d);
         return sparkline;
     };
 
     sparkline.yDomain = function (d) {
         if (!arguments.length) {
-            return yDomain;
+            return yDomain; // TODO: yDomain.call()?
         }
-        yDomain = d;
+        yDomain = d3.functor(d);
         return sparkline;
     };
 
