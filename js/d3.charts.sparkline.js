@@ -14,6 +14,7 @@ d3.charts.sparkline = function () {
         xDomain = null,
         yDomain = null,
         interpolate = 'step',
+        duration = 1000,
         isArea = false,
         isLine = true;
 
@@ -65,6 +66,7 @@ d3.charts.sparkline = function () {
                     .data(function (d) { return [d]; });
 
             areaPath.transition() // Update selection
+                    .duration(duration)
                     .attr('d', area);
 
             areaPath.enter().append('path')
@@ -75,6 +77,7 @@ d3.charts.sparkline = function () {
                     .data(function (d) { return [d]; });
 
             linePath.transition() // Update selection
+                    .duration(duration)
                     .attr('d', line);
 
             linePath.enter().append('path')
@@ -145,6 +148,14 @@ d3.charts.sparkline = function () {
             return interpolate;
         }
         interpolate = d;
+        return sparkline;
+    };
+
+    sparkline.duration = function (d) {
+        if (!arguments.length) {
+            return duration;
+        }
+        duration = d;
         return sparkline;
     };
 
