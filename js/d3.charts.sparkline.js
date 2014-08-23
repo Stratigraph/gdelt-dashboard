@@ -29,6 +29,8 @@ d3.charts.sparkline = function () {
                 .domain(yDomain ? yDomain.call(this, data, index) : d3.extent(data, function (d, i) { return yAccessor(d, i); }))
                 .range([height - margin.top - margin.bottom, 0]);
 
+            // Shapes
+
             var line = d3.svg.line()
                 .interpolate(interpolate)
                 .x(function (d, i) { return x(xAccessor(d, i)); })
