@@ -186,15 +186,19 @@ dispatch.on('change.domain-controller', function () {
 
 dispatch.on('change.sparkline', function (value) {
 
-    var yDomain = null; // value === 'local-min-max'
+    if (value === 'local-min-max') {
+        sparkline
+            .yDomain(null);
+    }
 
     if (value === 'local-zero-max') {
-        yDomain = function (d) { return [0, d3.max(d, sparkline.y())]; };
+        sparkline
+            .yDomain(function (d) { return [0, d3.max(d, sparkline.y())]; });
     }
 
     d3.selectAll('.cell').select('div')
             .datum(function (d) { return d.values; })
-            .call(sparkline.yDomain(yDomain));
+            .call(sparkline);
 
 });
 
