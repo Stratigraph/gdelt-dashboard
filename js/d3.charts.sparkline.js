@@ -13,7 +13,9 @@ d3.charts.sparkline = function () {
         yAccessor = function (d) { return d.y; },
         xDomain = null,
         yDomain = null,
-        interpolate = 'step';
+        interpolate = 'step',
+        isArea = false,
+        isLine = true;
 
     function sparkline(selection) {
 
@@ -143,6 +145,22 @@ d3.charts.sparkline = function () {
             return interpolate;
         }
         interpolate = d;
+        return sparkline;
+    };
+
+    sparkline.isArea = function (d) {
+        if (!arguments.length) {
+            return isArea;
+        }
+        isArea = d;
+        return sparkline;
+    };
+
+    sparkline.isLine = function (d) {
+        if (!arguments.length) {
+            return isLine;
+        }
+        isLine = d;
         return sparkline;
     };
 
