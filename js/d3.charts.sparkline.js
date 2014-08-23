@@ -62,21 +62,21 @@ d3.charts.sparkline = function () {
             var areaPath = svg.select('.chart-area').selectAll('.area')
                     .data(function (d) { return [d]; });
 
-            areaPath.enter().append('path')
-                    .attr('class', 'area')
+            areaPath.transition() // Update selection
                     .attr('d', area);
 
-            areaPath.transition() // Update selection
+            areaPath.enter().append('path')
+                    .attr('class', 'area')
                     .attr('d', area);
 
             var linePath = svg.select('.chart-area').selectAll('.line')
                     .data(function (d) { return [d]; });
 
-            linePath.enter().append('path')
-                    .attr('class', 'line')
+            linePath.transition() // Update selection
                     .attr('d', line);
 
-            linePath.transition() // Update selection
+            linePath.enter().append('path')
+                    .attr('class', 'line')
                     .attr('d', line);
 
         });
