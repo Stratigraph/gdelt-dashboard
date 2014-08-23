@@ -34,6 +34,12 @@ d3.charts.sparkline = function () {
                 .x(function (d, i) { return x(xAccessor(d, i)); })
                 .y(function (d, i) { return y(yAccessor(d, i)); });
 
+            var area = d3.svg.area()
+                .interpolate(interpolate)
+                .x(function (d, i) { return x(xAccessor(d, i)); })
+                .y0(height - margin.top - margin.bottom)
+                .y1(function (d, i) { return y(yAccessor(d, i)); });
+
             // Initial selection
 
             var svg = d3.select(this).selectAll('svg').data([data]);
@@ -51,14 +57,25 @@ d3.charts.sparkline = function () {
 
             // Chart area
 
-            var path = svg.select('.chart-area').selectAll('path')
+            var linePath = svg.select('.chart-area').selectAll('.line')
                     .data(function (d) { return [d]; });
 
-            path.enter().append('path')
+            linePath.enter().append('path')
+                    .attr('class', 'line')
                     .attr('d', line);
 
-            path.transition()
+            linePath.transition()
                     .attr('d', line);
+
+            var areaPath = svg.select('.chart-area').selectAll('.area')
+                    .data(function (d) { return [d]; });
+
+            areaPath.enter().append('path')
+                    .attr('class', 'area')
+                    .attr('d', area);
+
+            areaPath.transition()
+                    .attr('d', area);
 
         });
     }
