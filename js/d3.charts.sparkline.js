@@ -66,7 +66,7 @@ d3.charts.sparkline = function () {
                     .attr('class', 'area')
                     .attr('d', area);
 
-            areaPath.transition()
+            areaPath.transition() // Update selection
                     .attr('d', area);
 
             var linePath = svg.select('.chart-area').selectAll('.line')
@@ -76,7 +76,7 @@ d3.charts.sparkline = function () {
                     .attr('class', 'line')
                     .attr('d', line);
 
-            linePath.transition()
+            linePath.transition() // Update selection
                     .attr('d', line);
 
         });
