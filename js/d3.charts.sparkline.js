@@ -31,16 +31,16 @@ d3.charts.sparkline = function () {
 
             // Shapes
 
-            var line = d3.svg.line()
-                .interpolate(interpolate)
-                .x(function (d, i) { return x(xAccessor(d, i)); })
-                .y(function (d, i) { return y(yAccessor(d, i)); });
-
             var area = d3.svg.area()
                 .interpolate(interpolate)
                 .x(function (d, i) { return x(xAccessor(d, i)); })
                 .y0(height - margin.top - margin.bottom)
                 .y1(function (d, i) { return y(yAccessor(d, i)); });
+
+            var line = d3.svg.line()
+                .interpolate(interpolate)
+                .x(function (d, i) { return x(xAccessor(d, i)); })
+                .y(function (d, i) { return y(yAccessor(d, i)); });
 
             // Initial selection
 
@@ -59,16 +59,6 @@ d3.charts.sparkline = function () {
 
             // Chart area
 
-            var linePath = svg.select('.chart-area').selectAll('.line')
-                    .data(function (d) { return [d]; });
-
-            linePath.enter().append('path')
-                    .attr('class', 'line')
-                    .attr('d', line);
-
-            linePath.transition()
-                    .attr('d', line);
-
             var areaPath = svg.select('.chart-area').selectAll('.area')
                     .data(function (d) { return [d]; });
 
@@ -78,6 +68,16 @@ d3.charts.sparkline = function () {
 
             areaPath.transition()
                     .attr('d', area);
+
+            var linePath = svg.select('.chart-area').selectAll('.line')
+                    .data(function (d) { return [d]; });
+
+            linePath.enter().append('path')
+                    .attr('class', 'line')
+                    .attr('d', line);
+
+            linePath.transition()
+                    .attr('d', line);
 
         });
     }
