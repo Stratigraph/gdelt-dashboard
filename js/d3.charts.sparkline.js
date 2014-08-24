@@ -91,14 +91,28 @@ d3.charts.sparkline = function () {
             var linePath = svg.select('.chart-area').selectAll('.line')
                     .data(function (d) { return [d]; });
 
-            linePath.transition() // Update selection
-                    .duration(duration)
-                    .attr('d', line);
+            if (isLine) { // Add new or update existing line
 
-            linePath.enter().append('path')
-                    .attr('class', 'line')
-                    .attr('d', line);
+                linePath.transition() // Update selection
+                        .duration(duration)
+                        .attr('d', line);
 
+                linePath.enter().append('path')
+                        .attr('class', 'line')
+                        .attr('d', line)
+                        .style('stroke-opacity', 0)
+                    .transition()
+                        .duration(duration)
+                        .style('stroke-opacity', 1);
+
+            } else { // Remove existing line or do nothing
+
+                linePath.transition()
+                        .duration(duration)
+                        .style('stroke-opacity', 0)
+                        .remove();
+
+            }
         });
     }
 
