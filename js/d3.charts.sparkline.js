@@ -65,7 +65,7 @@ d3.charts.sparkline = function () {
             var areaPath = svg.select('.chart-area').selectAll('.area')
                     .data(function (d) { return [d]; });
 
-            if (isArea) { // Add new or update existing area chart
+            if (isArea) { // Add new or update existing area
 
                 areaPath.transition() // Update selection
                         .duration(duration)
@@ -79,7 +79,7 @@ d3.charts.sparkline = function () {
                         .duration(duration)
                         .style('fill-opacity', 1);
 
-            } else { // Remove existing area chart or do nothing
+            } else { // Remove existing area or do nothing
 
                 areaPath.transition()
                         .duration(duration)
