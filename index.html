@@ -188,12 +188,14 @@ dispatch.on('change.sparkline', function (value) {
 
     if (value === 'local-min-max') {
         sparkline
-            .yDomain(null);
+            .yDomain(null)
+            .isArea(false);
     }
 
     if (value === 'local-zero-max') {
         sparkline
-            .yDomain(function (d) { return [0, d3.max(d, sparkline.y())]; });
+            .yDomain(function (d) { return [0, d3.max(d, sparkline.y())]; })
+            .isArea(true);
     }
 
     d3.selectAll('.cell').select('div')
