@@ -1,0 +1,49 @@
+body {
+    font-family: 'Droid Sans', sans-serif;
+    font-size: 10px;
+    margin: 5px;
+    padding: 0;
+}
+
+#controls {
+    margin: 5px 0;
+    padding: 5px;
+    border: 1px solid lightgrey;
+}
+
+#matrix {
+    position: relative;
+}
+
+.col {
+    position: absolute;
+}
+
+.col .header {
+    background-color: lightgrey;
+    margin-bottom: 15px;
+    padding: 5px;
+    text-align: center;
+    color: grey;
+}
+
+.cell {
+    margin-bottom: 15px;
+}
+
+.cell .title {
+    color: lightgrey;
+}
+
+.sparkline .line {
+    fill: none;
+    stroke: #e6550d;
+    stroke-width: 0.5px;
+    shape-rendering: crispEdges;
+}
+
+.sparkline .area {
+    fill: #fee6ce;
+    stroke: none;
+    shape-rendering: crispEdges;
+}
