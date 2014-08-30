@@ -76,69 +76,37 @@ body {
 <script>
 
 var dispatch = d3.dispatch('load', 'change'),
-    format = d3.time.format('%Y%m%d'),
-    minDate = format.parse('20140701'),
-    maxDate = format.parse('20140801');
+    minDate = d3.time.format.iso.parse('2014-07-01'),
+    maxDate = d3.time.format.iso.parse('2014-08-01'),
+    countriesByCodes;
 
 var sparkline = d3.charts.sparkline()
-    .x(function (d) { return d.date; })
-    .y(function (d) { return d.count; });
+    .x(function (d) { return d.x; })
+    .y(function (d) { return d.y; });
 
 d3.csv('data/countries.csv', function (error, countries) {
 
-    var countriesByCodes = d3.nest()
+    countriesByCodes = d3.nest()
         .key(function (d) { return d.fips_10; })
         .rollup(function (d) { return d[0]; })
         .map(countries, d3.map);
 
-    d3.csv('data/counts.csv', function (error, counts) {
+    d3.csv('data/events.csv', function (error, events) {
 
-        counts.forEach(function (d) {
-            d.date = format.parse(d.date);
-            d.count = parseInt(d.count, 10);
+        events.forEach(function (d) {
+            d.ev_id = +d.ev_id;
+            d.ev_date = d3.time.format.iso.parse(d.ev_date);
+            d.ev_goldstein = +d.ev_goldstein;
+            d.ev_mentions = +d.ev_mentions;
+            d.ev_sources = +d.ev_sources;
+            d.ev_articles = +d.ev_articles;
+            d.ev_tone = +d.ev_tone;
+            d.geo_type = +d.geo_type;
+            d.geo_lat = +d.geo_lat;
+            d.geo_lon = +d.geo_lon;
         });
 
-        // Impute missing data
-        var countsByCodesByDates = d3.nest()
-            .key(function (d) { return d.fips_10; })
-            .key(function (d) { return d.date; })
-            .rollup(function (d) { return d[0]; })
-            .map(counts, d3.map);
-
-        var dates = d3.time.day.range(minDate, maxDate);
-
-        countsByCodesByDates.forEach(function (key, value) {
-            dates.forEach(function (date) {
-                if (!value.has(date)) {
-                    value.set(date, { 'fips_10' : key, 'date' : date, 'count' : 0 });
-                }
-            });
-        });
-
-        counts = d3.merge(countsByCodesByDates.values().map(function (d) { return d.values(); }));
-
-        // Nest for visualisation
-        var countsByRegionsByNames = d3.nest()
-            .key(function (d) {
-                var country = countriesByCodes.get(d.fips_10);
-                if (country) {
-                    return country.region_un;
-                }
-                return "Other";
-            })
-            .sortKeys(d3.ascending)
-            .key(function (d) {
-                var country = countriesByCodes.get(d.fips_10)
-                if (country) {
-                    return country.name;
-                }
-                return d.fips_10;
-            })
-            .sortKeys(d3.ascending)
-            .sortValues(function (a, b) { return d3.ascending(a.date, b.date); })
-            .entries(counts);
-
-        dispatch.load(countsByRegionsByNames);
+        dispatch.load(events);
     });
 });
 
@@ -149,13 +117,29 @@ dispatch.on('load.domain-controller', function () {
 
 });
 
-dispatch.on('load.sparkline', function (data) {
+dispatch.on('load.sparkline', function (events) {
 
-    var matrix = d3.select('#matrix')
+    var histogram = d3.layout.histogram()
+        .value(function (d) { return d.ev_date; })
+        .bins(d3.time.day.utc.range(minDate, maxDate));
 
-    var cols = matrix.selectAll('.col')
-            .data(data)
-            .enter().append('div')
+    var nestEvents = d3.nest()
+        .key(function (d) {
+            var country = countriesByCodes.get(d.geo_adm0);
+            return country ? country.region_un : 'Other';
+        })
+        .sortKeys(d3.ascending)
+        .key(function (d) {
+            var country = countriesByCodes.get(d.geo_adm0);
+            return country ? country.name : d.geo_adm0 || 'Other';
+        })
+        .sortKeys(d3.ascending)
+        .rollup(histogram)
+        .entries(events);
+
+    var cols = d3.select('#matrix').selectAll('.col')
+            .data(nestEvents)
+        .enter().append('div')
             .attr('class', 'col')
             .style('left', function (d, i) { return (i * (sparkline.width() + 10)) + 'px'; });
 
@@ -165,7 +149,7 @@ dispatch.on('load.sparkline', function (data) {
 
     var cells = cols.selectAll('.cell')
             .data(function (d) { return d.values; })
-            .enter().append('div')
+        .enter().append('div')
             .attr('class', 'cell');
 
     cells.append('div')
