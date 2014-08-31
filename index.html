@@ -23,6 +23,8 @@
 
 <script charset='utf-8' src='lib/d3.v3.min.js'></script>
 
+<script charset='utf-8' src='lib/crossfilter.v1.min.js'></script>
+
 <script charset='utf-8' src='js/d3.charts.sparkline.js'></script>
 
 <script>
@@ -30,7 +32,8 @@
 var dispatch = d3.dispatch('load', 'change'),
     minDate = d3.time.format.iso.parse('2014-07-01'),
     maxDate = d3.time.format.iso.parse('2014-08-01'),
-    countriesByCodes;
+    countriesByCodes,
+    crossEvents;
 
 var sparkline = d3.charts.sparkline()
     .x(function (d) { return d.x; })
@@ -58,7 +61,17 @@ d3.csv('data/countries.csv', function (error, countries) {
             d.geo_lon = +d.geo_lon;
         });
 
-        dispatch.load(events);
+        crossEvents = (function () {
+
+            var cf = crossfilter(events);
+
+            return {
+                'ev_code': cf.dimension(function (d) { return d.ev_code; })
+            };
+
+        }());
+
+        dispatch.load(crossEvents.ev_code.filter('180').top(Infinity));
     });
 });
 
