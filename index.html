@@ -107,11 +107,27 @@ dispatch.on('load.ev_code-controller', function () {
 
 dispatch.on('load.sparkline', function (events) {
 
+    d3.select('#matrix')
+            .datum(nest(events))
+            .call(matrix)
+
+});
+
+dispatch.on('change.sparkline', function () {
+
+    d3.selectAll('.cell').select('div')
+            .datum(function (d) { return d.values; })
+            .call(sparkline);
+
+});
+
+function nest(events) {
+
     var histogram = d3.layout.histogram()
         .value(function (d) { return d.ev_date; })
         .bins(d3.time.day.utc.range(minDate, maxDate));
 
-    var nestEvents = d3.nest()
+    var nest = d3.nest()
         .key(function (d) {
             var country = countriesByCodes.get(d.geo_adm0);
             return country ? country.region_un : 'Other';
@@ -125,8 +141,14 @@ dispatch.on('load.sparkline', function (events) {
         .rollup(histogram)
         .entries(events);
 
-    var cols = d3.select('#matrix').selectAll('.col')
-            .data(nestEvents)
+    return nest;
+
+}
+
+function matrix(selection) {
+
+    var cols = selection.selectAll('.col')
+            .data(function (d) { return d; })
         .enter().append('div')
             .attr('class', 'col')
             .style('left', function (d, i) { return (i * (sparkline.width() + 10)) + 'px'; });
@@ -148,15 +170,7 @@ dispatch.on('load.sparkline', function (events) {
             .attr('class', 'title')
             .text(function (d) { return d.key; });
 
-});
-
-dispatch.on('change.sparkline', function () {
-
-    d3.selectAll('.cell').select('div')
-            .datum(function (d) { return d.values; })
-            .call(sparkline);
-
-});
+}
 
 </script>
 
