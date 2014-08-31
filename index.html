@@ -77,16 +77,32 @@ d3.csv('data/countries.csv', function (error, countries) {
 
 dispatch.on('load.domain-controller', function () {
 
-    var select = d3.select('#domain-controller')
-            .on('change', function () { dispatch.change(this.value); });
+    var select = d3.select('#domain-controller').on('change', function () {
 
+        if (this.value === 'local-min-max') {
+            sparkline
+                .yDomain(null)
+                .isArea(false);
+        }
+
+        if (this.value === 'local-zero-max') {
+            sparkline
+                .yDomain(function (d) { return [0, d3.max(d, sparkline.y())]; })
+                .isArea(true);
+        }
+
+        dispatch.change();
+
+    });
 });
 
 dispatch.on('load.ev_code-controller', function () {
 
-    var select = d3.select('#ev_code-controller')
-            .on('change', function () { dispatch.change(this.value); });
+    var select = d3.select('#ev_code-controller').on('change', function () {
 
+        dispatch.change();
+
+    });
 });
 
 dispatch.on('load.sparkline', function (events) {
@@ -134,19 +150,7 @@ dispatch.on('load.sparkline', function (events) {
 
 });
 
-dispatch.on('change.sparkline', function (value) {
-
-    if (value === 'local-min-max') {
-        sparkline
-            .yDomain(null)
-            .isArea(false);
-    }
-
-    if (value === 'local-zero-max') {
-        sparkline
-            .yDomain(function (d) { return [0, d3.max(d, sparkline.y())]; })
-            .isArea(true);
-    }
+dispatch.on('change.sparkline', function () {
 
     d3.selectAll('.cell').select('div')
             .datum(function (d) { return d.values; })
