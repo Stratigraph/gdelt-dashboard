@@ -13,6 +13,10 @@
         <option value='local-min-max'>min-max [local]</option>
         <option value='local-zero-max'>zero-max [local]</option>
     </select>
+    <select id='ev_code-controller'>
+        <option value='180'>Use unconventional violence</option>
+        <option value='181'>Abduct, hijack, or take hostage</option>
+    </select>
 </div>
 
 <div id='matrix'></div>
@@ -65,6 +69,13 @@ dispatch.on('load.domain-controller', function () {
 
 });
 
+dispatch.on('load.ev_code-controller', function () {
+
+    var select = d3.select('#ev_code-controller')
+            .on('change', function () { dispatch.change(this.value); });
+
+});
+
 dispatch.on('load.sparkline', function (events) {
 
     var histogram = d3.layout.histogram()
@@ -113,6 +124,12 @@ dispatch.on('load.sparkline', function (events) {
 dispatch.on('change.domain-controller', function () {
 
     console.log('change.domain-controller');
+
+});
+
+dispatch.on('change.ev_code-controller', function () {
+
+    console.log('change.ev_code-controller');
 
 });
 
